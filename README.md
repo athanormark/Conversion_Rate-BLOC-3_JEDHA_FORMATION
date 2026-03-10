@@ -143,7 +143,7 @@ Placer `conversion_data_train.csv` et `conversion_data_test.csv` dans `data/raw/
 jupyter notebook notebooks/1.0-eda-model-training.ipynb
 ```
 
-### Structure du Projet
+## 📂 Structure du Projet
 
 ```text
 conversion_rate_project/
