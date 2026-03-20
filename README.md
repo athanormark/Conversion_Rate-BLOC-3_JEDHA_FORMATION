@@ -1,10 +1,11 @@
 # Conversion Rate Challenge - Prediction de Newsletter
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat&logo=python&logoColor=white)
-![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikit-learn&logoColor=white)
-![XGBoost](https://img.shields.io/badge/XGBoost-EC4E20?style=flat&logoColor=white)
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=fff)](#)
+[![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=fff)](#)
+[![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=fff)](#)
+[![scikit--learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
+[![XGBoost](https://img.shields.io/badge/XGBoost-EC4E20?style=flat)](#)
+[![JEDHA](https://img.shields.io/badge/JEDHA-blueviolet?style=flat)](#)
 
 ---
 
@@ -15,6 +16,8 @@
 Le projet s'inscrit dans un **challenge de Machine Learning** (format Kaggle) : construire le modele avec le meilleur **F1-Score** sur la prediction des conversions.
 
 **Pourquoi le F1-Score ?** Le dataset est tres desequilibre (3.23% de conversions). L'Accuracy est inadaptee : un modele "naif" qui predit toujours 0 atteindrait 96.8% sans rien detecter. Le F1-Score, moyenne harmonique de la precision et du recall, penalise les modeles qui sacrifient l'un ou l'autre. C'est aussi la metrique imposee par le challenge.
+
+---
 
 ## Dataset
 
@@ -48,6 +51,8 @@ Taux de conversion : **3.23%** (9 186 / 284 580).
 
 **Nettoyage** : 2 lignes avec age = 123 ans supprimees (erreurs de saisie). Dataset final : **284 578 lignes**.
 
+---
+
 ## Installation
 
 ```bash
@@ -61,6 +66,8 @@ Placer `conversion_data_train.csv` et `conversion_data_test.csv` dans `data/raw/
 ```bash
 jupyter notebook notebooks/1.0-eda-model-training.ipynb
 ```
+
+---
 
 ## Pipeline
 
@@ -104,6 +111,8 @@ Le meilleur modele est applique sur `conversion_data_test.csv` (31 620 lignes) a
 - `scaler.transform` (pas `fit_transform`) pour eviter le data leakage
 - Les outliers du test ne sont **pas** supprimes : une prediction est requise pour chaque ligne
 
+---
+
 ## Resultats
 
 ### Comparaison des modeles
@@ -144,6 +153,21 @@ La Logistic Regression detecte 94% des convertis mais genere enormement de faux 
 | `new_user` | Les utilisateurs recurrents convertissent mieux | Strategie de retargeting pour faire revenir les visiteurs |
 | `country` | Disparites geographiques (China/US legerement au-dessus) | Adapter le contenu ou le timing des newsletters par region |
 
+---
+
+## Conclusion
+
+Le projet repond a la problematique : **predire la conversion d'un visiteur a la newsletter avec le meilleur F1-Score**.
+
+- Le **XGBoost optimise** (GridSearchCV, max_depth=7, lr=0.1) atteint un F1 de **0.759**, partant d'un baseline a 0.512 (Logistic Regression). Progression de +48%.
+- Les scores CV et test sont proches pour chaque modele : **pas d'overfitting**.
+- Le nombre de **pages visitees** est le predicteur dominant : au-dela de 12-15 pages, la conversion est quasi-certaine.
+- Les **18-30 ans** et les **utilisateurs recurrents** convertissent davantage.
+
+**Leviers d'action** : inciter la navigation (liens internes, contenu interactif), cibler les campagnes marketing sur les 18-30 ans, mettre en place une strategie de retargeting pour faire revenir les visiteurs, et adapter le contenu par region.
+
+---
+
 ## Structure du projet
 
 ```text
@@ -159,6 +183,8 @@ conversion_rate_project/
 ├── requirements.txt
 └── README.md
 ```
+
+---
 
 ## Auteur
 
