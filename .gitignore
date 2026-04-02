@@ -15,5 +15,6 @@ data/raw/
 .DS_Store
 Thumbs.db
 
-# Claude Code
+# Dev tools
 .claude/
+FICHE_ANTI_QUESTIONS.md
