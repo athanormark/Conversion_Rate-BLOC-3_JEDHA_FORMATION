@@ -1,55 +1,54 @@
-# Conversion Rate Challenge - Prediction de Newsletter
+# Conversion Rate Challenge -- Prediction de la conversion newsletter
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=fff)](#)
+[![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=fff)](#)
 [![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=fff)](#)
 [![scikit--learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
 [![XGBoost](https://img.shields.io/badge/XGBoost-EC4E20?style=flat)](#)
+[![Matplotlib](https://img.shields.io/badge/Matplotlib-11557C?style=flat)](#)
+[![Seaborn](https://img.shields.io/badge/Seaborn-444876?style=flat)](#)
 [![JEDHA](https://img.shields.io/badge/JEDHA-blueviolet?style=flat)](#)
 
 ---
 
 ## About
 
-**datascienceweekly.org** est une newsletter curatee par des data scientists independants. L'equipe souhaite predire si un visiteur va s'abonner a la newsletter en fonction de son comportement de navigation et de ses caracteristiques demographiques.
+**datascienceweekly.org** est une newsletter curatee par des data scientists independants. L'equipe souhaite comprendre le comportement des visiteurs de son site et predire si un visiteur va s'abonner a la newsletter a partir de son profil et de sa navigation.
 
-Le projet s'inscrit dans un **challenge de Machine Learning** (format Kaggle) : construire le modele avec le meilleur **F1-Score** sur la prediction des conversions.
+L'objectif est double :
+1. **Construire un modele predictif** capable d'identifier les visiteurs les plus susceptibles de convertir, afin d'orienter les actions marketing en consequence.
+2. **Analyser les parametres du modele** pour decouvrir des leviers d'action concrets permettant d'ameliorer le taux de conversion.
 
-**Pourquoi le F1-Score ?** Le dataset est tres desequilibre (3.23% de conversions). L'Accuracy est inadaptee : un modele "naif" qui predit toujours 0 atteindrait 96.8% sans rien detecter. Le F1-Score, moyenne harmonique de la precision et du recall, penalise les modeles qui sacrifient l'un ou l'autre. C'est aussi la metrique imposee par le challenge.
+Le projet s'inscrit dans un **challenge de Machine Learning** (format Kaggle) : construire le modele avec le meilleur **F1-Score**, puis soumettre les predictions sur un jeu de test non labellise.
+
+**Pourquoi le F1-Score ?** Le dataset est tres desequilibre (3.23 % de conversions). L'Accuracy est inadaptee : un modele naif qui predit toujours 0 atteindrait 96.8 % sans rien detecter. Le F1-Score penalise les modeles qui sacrifient la precision ou le recall.
+
+Projet realise dans le cadre du **BLOC 3 -- Machine Learning** de la formation Data Fullstack (JEDHA Bootcamp).
 
 ---
 
 ## Dataset
 
-**284 580 lignes, 6 colonnes**, aucune valeur manquante.
+Deux fichiers CSV fournis par l'organisateur du challenge :
+
+| Fichier | Lignes | Role |
+|---------|--------|------|
+| `conversion_data_train.csv` | 284 580 | Entrainement (labellise) |
+| `conversion_data_test.csv` | 31 620 | Soumission (non labellise) |
+
+**6 colonnes, aucune valeur manquante.**
 
 | Variable | Type | Description |
 |----------|------|-------------|
-| `country` | Categorielle (4 modalites) | US, UK, China, Germany |
+| `country` | Categorielle (4) | US, UK, China, Germany |
 | `age` | Numerique | 17-123 ans |
 | `new_user` | Binaire | 0 = recurrent, 1 = nouveau |
-| `source` | Categorielle (3 modalites) | Ads, Direct, Seo |
+| `source` | Categorielle (3) | Ads, Direct, Seo |
 | `total_pages_visited` | Numerique | 1-29 pages |
 | `converted` | Binaire (target) | 0 = non, 1 = oui |
 
-Taux de conversion : **3.23%** (9 186 / 284 580).
-
-<p align="center">
-  <img src="assets/images/target_distribution.png" width="400"/>
-</p>
-
-**Analyse par variable :**
-
-<p align="center">
-  <img src="assets/images/conversion_by_country_source.png" width="800"/>
-</p>
-
-<p align="center">
-  <img src="assets/images/age_distribution_and_pages.png" width="600"/>
-  <img src="assets/images/age_distribution_and_pages_2.png" width="600"/>
-</p>
-
-**Nettoyage** : 2 lignes avec age = 123 ans supprimees (erreurs de saisie). Dataset final : **284 578 lignes**.
+Taux de conversion : **3.23 %** (9 186 / 284 580). **Nettoyage** : 2 lignes avec age = 123 ans supprimees. Dataset final : **284 578 lignes**.
 
 ---
 
@@ -73,43 +72,41 @@ jupyter notebook notebooks/1.0-eda-model-training.ipynb
 
 ### 1. Exploration (EDA)
 
-Analyse de la distribution de la cible, des correlations entre variables et detection des valeurs aberrantes (age > 100 ans).
+Analyse de la distribution de la cible, des correlations entre variables et detection des valeurs aberrantes. Observations principales :
+- Le nombre de pages visitees (`total_pages_visited`) est le predicteur le plus discriminant
+- Les jeunes (18-30 ans) convertissent legerement mieux
+- Disparites geographiques moderees entre les pays
 
 ### 2. Preprocessing
 
-| Etape | Methode | Pourquoi |
-|-------|---------|----------|
-| Encodage | `pd.get_dummies(drop_first=True)` | One-Hot Encoding des categorielles. `drop_first` evite la multicolinearite |
-| Split | `train_test_split(stratify=y, test_size=0.2)` | `stratify` preserve le ratio 96.77/3.23 dans train et test |
-| Normalisation | `StandardScaler` | Necessaire pour la Logistic Regression (descente de gradient). fit sur le train, transform sur le test pour eviter le data leakage |
+| Etape | Methode | Justification |
+|-------|---------|---------------|
+| Encodage | `pd.get_dummies(drop_first=True)` | One-Hot Encoding. `drop_first` evite la multicolinearite |
+| Split | `train_test_split(stratify=y, test_size=0.2)` | Preserve le ratio 96.77/3.23 |
+| Normalisation | `StandardScaler` | fit sur le train, transform sur le test (pas de data leakage) |
 
 ### 3. Modelisation
 
-**4 modeles de complexite croissante** :
+4 modeles de complexite croissante :
 
-1. **Logistic Regression** (`class_weight='balanced'`) : Baseline lineaire. `balanced` ajuste les poids inversement proportionnels a la frequence des classes.
-2. **Random Forest** (100 arbres, `class_weight='balanced'`) : Ensemble par **bagging** (arbres en parallele, vote majoritaire). Reduit la variance par rapport a un arbre unique.
-3. **XGBoost** (defaut) : Ensemble par **boosting** (arbres sequentiels, chaque arbre corrige les erreurs du precedent). Reduit biais et variance.
-4. **XGBoost** (optimise par GridSearchCV) : Meilleur modele retenu.
+1. **Logistic Regression** (`class_weight='balanced'`) : baseline lineaire
+2. **Random Forest** (100 arbres, `class_weight='balanced'`) : ensemble par bagging
+3. **XGBoost** (defaut) : ensemble par boosting
+4. **XGBoost** (optimise par `GridSearchCV`) : modele retenu
 
 ### 4. Optimisation (GridSearchCV)
 
-Recherche exhaustive sur une grille d'hyperparametres, avec cross-validation 3-fold et F1-Score comme metrique :
+Recherche sur grille, cross-validation 3-fold, F1-Score comme metrique :
 
-| Parametre | Role | Valeurs testees | Retenu |
-|-----------|------|-----------------|--------|
-| `max_depth` | Profondeur max de chaque arbre | 3, 5, 7 | **7** |
-| `learning_rate` | Taux d'apprentissage du boosting | 0.05, 0.1, 0.2 | **0.1** |
-| `n_estimators` | Nombre d'arbres | 100, 200 | **100** |
-
-18 combinaisons x 3 folds = **54 fits**. cv=3 est suffisant ici : avec ~228K lignes d'entrainement, chaque fold fait ~76K lignes.
+| Parametre | Valeurs testees | Retenu |
+|-----------|-----------------|--------|
+| `max_depth` | 3, 5, 7 | **7** |
+| `learning_rate` | 0.05, 0.1, 0.2 | **0.1** |
+| `n_estimators` | 100, 200 | **100** |
 
 ### 5. Submission
 
-Le meilleur modele est applique sur `conversion_data_test.csv` (31 620 lignes) avec le meme preprocessing :
-- `get_dummies` + `reindex` pour aligner les colonnes avec le train
-- `scaler.transform` (pas `fit_transform`) pour eviter le data leakage
-- Les outliers du test ne sont **pas** supprimes : une prediction est requise pour chaque ligne
+Le meilleur modele est applique sur le test set (31 620 lignes) avec le meme preprocessing. Le fichier `submission.csv` est genere dans `data/processed/` (colonne unique `converted`).
 
 ---
 
@@ -117,54 +114,39 @@ Le meilleur modele est applique sur `conversion_data_test.csv` (31 620 lignes) a
 
 ### Comparaison des modeles
 
-| Modele | Type | Precision | Recall | F1 (Test) | F1 (CV 3-fold) |
-|--------|------|:---------:|:------:|:---------:|:--------------:|
-| Logistic Regression | Lineaire (Baseline) | 0.35 | 0.94 | 0.5118 | 0.5111 +/- 0.0014 |
-| Random Forest | Ensemble - Bagging | 0.44 | 0.83 | 0.5761 | 0.5754 +/- 0.0053 |
-| XGBoost (defaut) | Ensemble - Boosting | 0.85 | 0.68 | 0.7544 | 0.7561 +/- 0.0074 |
-| **XGBoost (optimise)** | **Ensemble - Boosting** | **0.85** | **0.69** | **0.7591** | **0.7650 +/- 0.0069** |
+| Modele | Precision | Recall | F1 (Test) | F1 (CV 3-fold) |
+|--------|:---------:|:------:|:---------:|:--------------:|
+| Logistic Regression (baseline) | 0.35 | 0.94 | 0.5118 | 0.5111 +/- 0.0014 |
+| Random Forest | 0.44 | 0.83 | 0.5761 | 0.5754 +/- 0.0053 |
+| XGBoost (defaut) | 0.85 | 0.68 | 0.7544 | 0.7561 +/- 0.0074 |
+| **XGBoost (optimise)** | **0.85** | **0.69** | **0.7591** | **0.7650 +/- 0.0069** |
 
-- Les scores CV et test sont proches pour chaque modele : **pas d'overfitting**.
-- Le XGBoost optimise offre le meilleur equilibre precision/recall.
-
-### Matrices de confusion
-
-<p align="center">
-  <img src="assets/images/confusion_matrix_logreg.png" width="350"/>
-  <img src="assets/images/confusion_matrix_rf.png" width="350"/>
-</p>
-<p align="center">
-  <img src="assets/images/confusion_matrix_xgboost.png" width="350"/>
-  <img src="assets/images/confusion_matrix_xgboost_optimized.png" width="350"/>
-</p>
-
-La Logistic Regression detecte 94% des convertis mais genere enormement de faux positifs (precision = 35%). Le XGBoost optimise trouve le meilleur compromis : 85% de precision pour 69% de recall.
+Progression baseline → meilleur modele : **+48 %** de F1-Score. Scores CV et test proches : pas d'overfitting.
 
 ### Feature Importance et leviers d'action
 
-<p align="center">
-  <img src="assets/images/feature_importance.png" width="600"/>
-</p>
-
 | Variable | Impact | Recommandation |
 |----------|--------|---------------|
-| `total_pages_visited` | Predicteur dominant. Au-dela de 12-15 pages, conversion quasi-certaine | Inciter la navigation : liens internes, suggestions d'articles, contenu interactif |
+| `total_pages_visited` | Predicteur dominant. Au-dela de 12-15 pages, conversion quasi-certaine | Inciter la navigation : liens internes, suggestions d'articles |
 | `age` | Les 18-30 ans convertissent davantage | Cibler les campagnes marketing sur cette tranche |
 | `new_user` | Les utilisateurs recurrents convertissent mieux | Strategie de retargeting pour faire revenir les visiteurs |
-| `country` | Disparites geographiques (China/US legerement au-dessus) | Adapter le contenu ou le timing des newsletters par region |
+| `country` | Disparites geographiques moderees | Adapter le contenu ou le timing par region |
 
 ---
 
 ## Conclusion
 
-Le projet repond a la problematique : **predire la conversion d'un visiteur a la newsletter avec le meilleur F1-Score**.
+Le projet repond a la double problematique : **predire quels visiteurs vont s'abonner**, et **identifier les leviers d'action** pour ameliorer le taux de conversion.
 
-- Le **XGBoost optimise** (GridSearchCV, max_depth=7, lr=0.1) atteint un F1 de **0.759**, partant d'un baseline a 0.512 (Logistic Regression). Progression de +48%.
-- Les scores CV et test sont proches pour chaque modele : **pas d'overfitting**.
-- Le nombre de **pages visitees** est le predicteur dominant : au-dela de 12-15 pages, la conversion est quasi-certaine.
-- Les **18-30 ans** et les **utilisateurs recurrents** convertissent davantage.
+- Le **XGBoost optimise** atteint un F1 de **0.759**, partant d'un baseline a 0.512 (+48 %)
+- Le nombre de **pages visitees** est le predicteur dominant
+- Les **18-30 ans** et les **utilisateurs recurrents** convertissent davantage
 
-**Leviers d'action** : inciter la navigation (liens internes, contenu interactif), cibler les campagnes marketing sur les 18-30 ans, mettre en place une strategie de retargeting pour faire revenir les visiteurs, et adapter le contenu par region.
+**Leviers d'action pour l'equipe** :
+- Inciter la navigation (liens internes, contenu interactif) pour augmenter le nombre de pages vues
+- Cibler les campagnes sur les 18-30 ans
+- Mettre en place du retargeting pour faire revenir les visiteurs
+- Adapter le contenu par region geographique
 
 ---
 
@@ -174,7 +156,7 @@ Le projet repond a la problematique : **predire la conversion d'un visiteur a la
 conversion_rate_project/
 ├── data/
 │   ├── raw/                  # Donnees brutes (non versionnees)
-│   └── processed/            # submission.csv generee
+│   └── processed/            # submission.csv
 ├── notebooks/
 │   └── 1.0-eda-model-training.ipynb
 ├── assets/
