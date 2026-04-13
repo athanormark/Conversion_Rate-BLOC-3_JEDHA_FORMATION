@@ -1,0 +1,177 @@
+# Conversion Rate Challenge -- Prédiction de la conversion newsletter
+
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=fff)](#)
+[![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=fff)](#)
+[![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=fff)](#)
+[![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=fff)](#)
+[![scikit--learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikit-learn&logoColor=fff)](#)
+[![XGBoost](https://img.shields.io/badge/XGBoost-EC4E20?style=flat)](#)
+[![Matplotlib](https://img.shields.io/badge/Matplotlib-11557C?style=flat)](#)
+[![Seaborn](https://img.shields.io/badge/Seaborn-444876?style=flat)](#)
+[![JEDHA](https://img.shields.io/badge/JEDHA-blueviolet?style=flat)](#)
+
+---
+
+## About
+
+**datascienceweekly.org** est une newsletter curatée par des data scientists indépendants. L'équipe souhaite comprendre le comportement des visiteurs de son site et prédire si un visiteur va s'abonner à la newsletter à partir de son profil et de sa navigation.
+
+L'objectif est double :
+
+* Construire un modèle prédictif capable d'identifier les visiteurs les plus susceptibles de convertir, afin d'orienter les actions marketing en conséquence.
+* Analyser les paramètres du modèle pour découvrir des leviers d'action concrets permettant d'améliorer le taux de conversion.
+
+Le projet s'inscrit dans un **challenge de Machine Learning** (format Kaggle) : construire le modèle avec le meilleur **F1-Score**, puis soumettre les prédictions sur un jeu de test non labellisé.
+
+**Pourquoi le F1-Score ?** Le dataset est très déséquilibré (3.23 % de conversions). L'Accuracy est inadaptée : un modèle naïf qui prédit toujours 0 atteindrait 96.8 % sans rien détecter. Le F1-Score pénalise les modèles qui sacrifient la précision ou le recall.
+
+Projet réalisé dans le cadre du **BLOC 3 -- Machine Learning** de la formation Data Fullstack (JEDHA Bootcamp).
+
+---
+
+## Dataset
+
+Deux fichiers CSV fournis par l'organisateur du challenge :
+
+|Fichier|Lignes|Rôle|
+|-|-|-|
+|`conversion_data_train.csv`|284 580|Entraînement (labellisé)|
+|`conversion_data_test.csv`|31 620|Soumission (non labellisé)|
+
+**6 colonnes, aucune valeur manquante.**
+
+|Variable|Type|Description|
+|-|-|-|
+|`country`|Catégorielle (4)|US, UK, China, Germany|
+|`age`|Numérique|17-123 ans|
+|`new_user`|Binaire|0 = récurrent, 1 = nouveau|
+|`source`|Catégorielle (3)|Ads, Direct, Seo|
+|`total_pages_visited`|Numérique|1-29 pages|
+|`converted`|Binaire (target)|0 = non, 1 = oui|
+
+Taux de conversion : **3.23 %** (9 186 / 284 580). **Nettoyage** : 2 lignes avec age = 123 ans supprimées. Dataset final : **284 578 lignes**.
+
+---
+
+## Installation
+
+```bash
+git clone https://github.com/athanormark/Conversion_Rate-BLOC-3_JEDHA_FORMATION.git
+cd Conversion_Rate-BLOC-3_JEDHA_FORMATION
+pip install -r requirements.txt
+```
+
+Placer `conversion_data_train.csv` et `conversion_data_test.csv` dans `data/raw/`, puis :
+
+```bash
+jupyter notebook notebooks/1.0-eda-model-training.ipynb
+```
+
+---
+
+## Pipeline
+
+### 1. Exploration (EDA)
+
+Analyse de la distribution de la cible, des corrélations entre variables et détection des valeurs aberrantes. Observations principales :
+
+* Le nombre de pages visitées (`total_pages_visited`) est le prédicteur le plus discriminant
+* Les jeunes (18-30 ans) convertissent légèrement mieux
+* Disparités géographiques modérées entre les pays
+
+### 2. Preprocessing
+
+|Étape|Méthode|Justification|
+|-|-|-|
+|Encodage|`pd.get_dummies(drop_first=True)`|One-Hot Encoding. `drop_first` évite la multicolinéarité|
+|Split|`train_test_split(stratify=y, test_size=0.2)`|Préserve le ratio 96.77/3.23|
+|Normalisation|`StandardScaler`|fit sur le train, transform sur le test (pas de data leakage)|
+
+### 3. Modélisation
+
+4 modèles de complexité croissante :
+
+1. **Logistic Regression** (`class_weight='balanced'`) : baseline linéaire
+2. **Random Forest** (100 arbres, `class_weight='balanced'`) : ensemble par bagging
+3. **XGBoost** (défaut) : ensemble par boosting
+4. **XGBoost** (optimisé par `GridSearchCV`) : modèle retenu
+
+### 4. Optimisation (GridSearchCV)
+
+Recherche sur grille, cross-validation 3-fold, F1-Score comme métrique :
+
+|Paramètre|Valeurs testées|Retenu|
+|-|-|-|
+|`max_depth`|3, 5, 7|**7**|
+|`learning_rate`|0.05, 0.1, 0.2|**0.1**|
+|`n_estimators`|100, 200|**100**|
+
+### 5. Submission
+
+Le meilleur modèle est appliqué sur le test set (31 620 lignes) avec le même preprocessing. Le fichier `submission.csv` est généré dans `data/processed/` (colonne unique `converted`).
+
+---
+
+## Résultats
+
+### Comparaison des modèles
+
+|Modèle|Précision|Recall|F1 (Test)|F1 (CV 3-fold)|
+|-|:-:|:-:|:-:|:-:|
+|Logistic Regression (baseline)|0.35|0.94|0.5118|0.5111 +/- 0.0014|
+|Random Forest|0.44|0.83|0.5761|0.5754 +/- 0.0053|
+|XGBoost (défaut)|0.85|0.68|0.7544|0.7561 +/- 0.0074|
+|**XGBoost (optimisé)**|**0.85**|**0.69**|**0.7591**|**0.7650 +/- 0.0069**|
+
+Progression baseline → meilleur modèle : **+48 %** de F1-Score. Scores CV et test proches : pas d'overfitting.
+
+### Feature Importance et leviers d'action
+
+|Variable|Impact|Recommandation|
+|-|-|-|
+|`total_pages_visited`|Prédicteur dominant. Au-delà de 12-15 pages, conversion quasi-certaine|Inciter la navigation : liens internes, suggestions d'articles|
+|`age`|Les 18-30 ans convertissent davantage|Cibler les campagnes marketing sur cette tranche|
+|`new_user`|Les utilisateurs récurrents convertissent mieux|Stratégie de retargeting pour faire revenir les visiteurs|
+|`country`|Disparités géographiques modérées|Adapter le contenu ou le timing par région|
+
+---
+
+## Conclusion
+
+Le projet répond à la double problématique : **prédire quels visiteurs vont s'abonner**, et **identifier les leviers d'action** pour améliorer le taux de conversion.
+
+* Le **XGBoost optimisé** atteint un F1 de **0.759**, partant d'un baseline à 0.512 (+48 %)
+* Le nombre de **pages visitées** est le prédicteur dominant
+* Les **18-30 ans** et les **utilisateurs récurrents** convertissent davantage
+
+**Leviers d'action pour l'équipe** :
+
+* Inciter la navigation (liens internes, contenu interactif) pour augmenter le nombre de pages vues
+* Cibler les campagnes sur les 18-30 ans
+* Mettre en place du retargeting pour faire revenir les visiteurs
+* Adapter le contenu par région géographique
+
+---
+
+## Structure du projet
+
+```text
+conversion_rate_project/
+├── data/
+│   ├── raw/                  # Données brutes (non versionnées)
+│   └── processed/            # submission.csv
+├── notebooks/
+│   └── 1.0-eda-model-training.ipynb
+├── assets/
+│   └── images/               # Graphiques du notebook
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Auteur
+
+Athanor SAVOUILLAN · [GitHub](https://github.com/athanormark)
+
