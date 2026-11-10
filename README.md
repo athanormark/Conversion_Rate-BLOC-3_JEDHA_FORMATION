@@ -1,5 +1,7 @@
 # Conversion Rate Challenge : Prédiction de la conversion newsletter
 
+> Prédiction de la conversion d'une newsletter (F1-score) avec régression logistique, Random Forest et XGBoost, projet de formation JEDHA.
+
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=fff)](#)
 [![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=fff)](#)
@@ -10,9 +12,7 @@
 [![Seaborn](https://img.shields.io/badge/Seaborn-444876?style=flat)](#)
 [![JEDHA](https://img.shields.io/badge/JEDHA-blueviolet?style=flat)](#)
 
----
-
-## About
+## Contexte et rôle
 
 **datascienceweekly.org** est une newsletter curatée par des data scientists indépendants. L'équipe souhaite comprendre le comportement des visiteurs de son site et prédire si un visiteur va s'abonner à la newsletter à partir de son profil et de sa navigation.
 
@@ -26,10 +26,6 @@ Le projet s'inscrit dans un **challenge de Machine Learning** (format Kaggle) : 
 **Pourquoi le F1-Score ?** Le dataset est très déséquilibré (3.23 % de conversions). L'Accuracy est inadaptée : un modèle naïf qui prédit toujours 0 atteindrait 96.8 % sans rien détecter. Le F1-Score pénalise les modèles qui sacrifient la précision ou le recall.
 
 Projet réalisé dans le cadre du **BLOC 3 : Machine Learning** de la formation Data Fullstack (JEDHA Bootcamp).
-
----
-
-## Contexte et rôle
 
 Projet de formation du bootcamp JEDHA (Data Fullstack, BLOC 3, Machine Learning). L'énoncé, le contexte métier et les données viennent de JEDHA ; datascienceweekly.org est un cas d'étude pédagogique, sans lien avec l'entreprise ni mission réelle.
 
@@ -61,23 +57,7 @@ Taux de conversion : **3.23 %** (9 186 / 284 580). **Nettoyage** : 2 lignes avec
 
 ---
 
-## Installation
-
-```bash
-git clone https://github.com/athanormark/Conversion_Rate-BLOC-3_JEDHA_FORMATION.git
-cd Conversion_Rate-BLOC-3_JEDHA_FORMATION
-pip install -r requirements.txt
-```
-
-Placer `conversion_data_train.csv` et `conversion_data_test.csv` dans `data/raw/`, puis :
-
-```bash
-jupyter notebook notebooks/1.0-eda-model-training.ipynb
-```
-
----
-
-## Pipeline
+## Fonctionnalités
 
 ### 1. Exploration (EDA)
 
@@ -120,6 +100,14 @@ Le meilleur modèle est appliqué sur le test set (31 620 lignes) avec le même 
 
 ---
 
+## Stack
+
+- Langage : Python 3.9+, Jupyter
+- Données et visualisation : pandas, NumPy, Matplotlib, seaborn
+- Modélisation : scikit-learn, XGBoost
+
+---
+
 ## Résultats
 
 ### Comparaison des modèles
@@ -141,6 +129,22 @@ Progression baseline → meilleur modèle : **+48 %** de F1-Score. Scores CV et 
 |`age`|Les 18-30 ans convertissent davantage|Cibler les campagnes marketing sur cette tranche|
 |`new_user`|Les utilisateurs récurrents convertissent mieux|Stratégie de retargeting pour faire revenir les visiteurs|
 |`country`|Disparités géographiques modérées|Adapter le contenu ou le timing par région|
+
+---
+
+## Lancer le projet
+
+```bash
+git clone https://github.com/athanormark/Conversion_Rate-BLOC-3_JEDHA_FORMATION.git
+cd Conversion_Rate-BLOC-3_JEDHA_FORMATION
+pip install -r requirements.txt
+```
+
+Placer `conversion_data_train.csv` et `conversion_data_test.csv` dans `data/raw/`, puis :
+
+```bash
+jupyter notebook notebooks/1.0-eda-model-training.ipynb
+```
 
 ---
 
@@ -181,5 +185,4 @@ conversion_rate_project/
 
 ## Auteur
 
-Athanor SAVOUILLAN · [GitHub](https://github.com/athanormark)
-
+Athanor Savouillan · [Réalisations](https://atelia-conseil.com/realisations/) · [GitHub](https://github.com/athanormark)
