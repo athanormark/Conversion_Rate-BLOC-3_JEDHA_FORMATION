@@ -1,4 +1,4 @@
-# Conversion Rate Challenge -- Prédiction de la conversion newsletter
+# Conversion Rate Challenge : Prédiction de la conversion newsletter
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=fff)](#)
 [![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=fff)](#)
@@ -25,7 +25,15 @@ Le projet s'inscrit dans un **challenge de Machine Learning** (format Kaggle) : 
 
 **Pourquoi le F1-Score ?** Le dataset est très déséquilibré (3.23 % de conversions). L'Accuracy est inadaptée : un modèle naïf qui prédit toujours 0 atteindrait 96.8 % sans rien détecter. Le F1-Score pénalise les modèles qui sacrifient la précision ou le recall.
 
-Projet réalisé dans le cadre du **BLOC 3 -- Machine Learning** de la formation Data Fullstack (JEDHA Bootcamp).
+Projet réalisé dans le cadre du **BLOC 3 : Machine Learning** de la formation Data Fullstack (JEDHA Bootcamp).
+
+---
+
+## Contexte et rôle
+
+Projet de formation du bootcamp JEDHA (Data Fullstack, BLOC 3, Machine Learning). L'énoncé, le contexte métier et les données viennent de JEDHA ; datascienceweekly.org est un cas d'étude pédagogique, sans lien avec l'entreprise ni mission réelle.
+
+Ce dépôt rassemble mon travail sur ce cas : prédiction de conversion par régression logistique, Random Forest et XGBoost. Les résultats annoncés plus bas sont ceux du notebook du dépôt.
 
 ---
 
